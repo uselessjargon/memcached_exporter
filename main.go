@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/percona/exporter_shared"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/grobie/gomemcache/memcache"
@@ -908,6 +909,9 @@ func main() {
 		prometheus.MustRegister(procExporter)
 	}
 
+       // Use our shared code to run server and exit on error. Upstream's code below will not be executed.
+	exporter_shared.RunServer("Memcached", *listenAddress, *metricsPath, newHandler(!*disableExporterMetrics, *maxRequests))
+	
 	http.Handle(*metricsPath, promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
